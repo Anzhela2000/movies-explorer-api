@@ -8,6 +8,7 @@ const moviesRouter = require('./routes/movies');
 const auth = require('./middlewares/auth');
 const errors = require('./middlewares/errors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { DB, SERVER_PORT } = require('./config');
 
 const { NOT_FOUND_ERROR_CODE } = require('./errors/NotFoundError');
 
@@ -17,7 +18,7 @@ const {
 
 const app = express();
 
-mongoose.connect('mongodb://127.0.0.1:27017/apimoviesDb');
+mongoose.connect(DB);
 
 app.use('/', bodyParser.json());
 app.use(express.urlencoded({
@@ -42,4 +43,4 @@ app.use(errorLogger);
 
 app.use(errors);
 
-app.listen(process.env.PORT);
+app.listen(SERVER_PORT);

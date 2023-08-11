@@ -7,13 +7,14 @@ const { AutorizationError } = require('../errors/AutorizationError');
 const { ConflictError } = require('../errors/ConflictError');
 const User = require('../models/user');
 const { userValidation } = require('../validation/user');
+const { SECRET_STRING } = require('../config');
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, SECRET_STRING, { expiresIn: '7d' });
       res.status(200).header('auth-token', token).send({ token });
     })
     .catch(() => {
@@ -62,10 +63,12 @@ const patchUser = (req, res, next) => {
     { email, name },
     { new: true, runValidators: true },
   )
-    .then((user) => {
-      if (!user) {
+    .then((data) => {
+      if (!data) {
         throw new NotFoundError('Пользователь с указанным _id не найден.');
       }
+      const user = data.toObject();
+      delete user.password;
       return res.send(user);
     })
     .catch((err) => {
@@ -80,10 +83,12 @@ const patchUser = (req, res, next) => {
 const getMe = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
-    .then((user) => {
-      if (!user) {
+    .then((data) => {
+      if (!data) {
         throw new NotFoundError('Пользователь с указанным _id не найден.');
       }
+      const user = data.toObject();
+      delete user.password;
       return res.send(user);
     })
     .catch((err) => {

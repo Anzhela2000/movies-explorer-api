@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { AutorizationError } = require('../errors/AutorizationError');
+const { SECRET_STRING } = require('../config');
 
 function auth(req, res, next) {
   const { authorization } = req.headers;
@@ -11,7 +12,7 @@ function auth(req, res, next) {
   const token = authorization;
   let payload;
   try {
-    payload = jwt.verify(token, process.env.JWT_SECRET);
+    payload = jwt.verify(token, SECRET_STRING);
   } catch (err) {
     next(new AutorizationError('Пользователь не зарегистрирован'));
   }
